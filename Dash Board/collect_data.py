@@ -9,9 +9,9 @@ import datetime
 import os
 import sys
 import time
-import subprocess
-import json
-from typing import Dict, Optional
+from typing import Dict
+
+import speedtest  # เพิ่มการ import ไลบรารี speedtest
 
 class NetworkQualityCollector:
     def __init__(self, log_file: str = "network_log.csv"):
@@ -48,52 +48,26 @@ class NetworkQualityCollector:
         """
         try:
             print("🔍 กำลังทดสอบความเร็วเครือข่าย...")
-            
-            # รัน speedtest-cli และรับผลในรูปแบบ JSON
-            result = subprocess.run(
-                ['speedtest-cli', '--json'],
-                capture_output=True,
-                text=True,
-                timeout=120  # timeout 2 นาที
-            )
-            
-            if result.returncode == 0:
-                data = json.loads(result.stdout)
-                
-                # แปลงข้อมูลเป็น Mbps
-                download_mbps = round(data['download'] / 1_000_000, 2)
-                upload_mbps = round(data['upload'] / 1_000_000, 2)
-                ping_ms = round(data['ping'], 2)
-                
-                return {
-                    'ping_ms': ping_ms,
-                    'download_mbps': download_mbps,
-                    'upload_mbps': upload_mbps,
-                    'server_name': data['server']['name'],
-                    'server_location': f"{data['server']['country']}, {data['server']['name']}",
-                    'status': 'success'
-                }
-            else:
-                print(f"❌ เกิดข้อผิดพลาด: {result.stderr}")
-                return {
-                    'ping_ms': 0,
-                    'download_mbps': 0,
-                    'upload_mbps': 0,
-                    'server_name': 'N/A',
-                    'server_location': 'N/A',
-                    'status': 'failed'
-                }
-                
-        except subprocess.TimeoutExpired:
-            print("⏰ การทดสอบหมดเวลา")
+
+            st = speedtest.Speedtest()
+            server = st.get_best_server()
+            download = st.download()
+            upload = st.upload()
+            ping = st.results.ping
+
+            download_mbps = round(download / 1_000_000, 2)
+            upload_mbps = round(upload / 1_000_000, 2)
+            ping_ms = round(ping, 2)
+
             return {
-                'ping_ms': 0,
-                'download_mbps': 0,
-                'upload_mbps': 0,
-                'server_name': 'N/A',
-                'server_location': 'N/A',
-                'status': 'timeout'
+                'ping_ms': ping_ms,
+                'download_mbps': download_mbps,
+                'upload_mbps': upload_mbps,
+                'server_name': server['name'],
+                'server_location': f"{server['country']}, {server['name']}",
+                'status': 'success'
             }
+
         except Exception as e:
             print(f"💥 เกิดข้อผิดพลาด: {str(e)}")
             return {
