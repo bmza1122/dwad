@@ -1,0 +1,24 @@
+import pandas as pd
+
+def fix_timestamp_format(csv_file="network_log.csv"):
+    try:
+        df = pd.read_csv(csv_file)
+        
+        # แปลง timestamp ให้เป็น datetime แบบยืดหยุ่น
+        df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce', infer_datetime_format=True)
+        
+        # กรองแถวที่แปลงวันที่ไม่ได้ทิ้ง
+        df = df.dropna(subset=['timestamp'])
+        
+        # แปลง timestamp เป็นสตริงรูปแบบ YYYY-MM-DD HH:MM:SS
+        df['timestamp'] = df['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S')
+        
+        # บันทึกทับไฟล์เดิม
+        df.to_csv(csv_file, index=False, encoding='utf-8-sig')
+        
+        print(f"✅ แก้ไขไฟล์ '{csv_file}' เรียบร้อยแล้ว")
+    except Exception as e:
+        print(f"❌ เกิดข้อผิดพลาด: {e}")
+
+if __name__ == "__main__":
+    fix_timestamp_format()
