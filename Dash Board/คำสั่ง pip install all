@@ -1,0 +1,18 @@
+pip install dash    
+python -c "import speedtest; st = speedtest.Speedtest(); print(st.get_best_server())"
+python -m pip install speedtest-cli 
+ python -m pip install --upgrade pip 
+speedtest-cli --json 
+python --version          //บรรทัด6กับ7มาด้วยกันลงทั้งคู่                 
+>> pip list     
+pip install matplotlib pandas numpy streamlit
+speedtest-cli --simple     
+python -m speedtest --simple
+ choco install speedtest
+winget install Ookla.Speedtest.CLI
+pip install speedtest-cli
+pip install streamlit plotly
+pip install streamlit
+pip install speedtest-cli pandas matplotlib numpy
+
+
